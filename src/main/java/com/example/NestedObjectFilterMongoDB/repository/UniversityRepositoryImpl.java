@@ -2,11 +2,16 @@ package com.example.NestedObjectFilterMongoDB.repository;
 
 import com.example.NestedObjectFilterMongoDB.dto.DepartmentDTO;
 import com.example.NestedObjectFilterMongoDB.dto.FacultyDTO;
+import com.example.NestedObjectFilterMongoDB.dto.FacultyUnwindDTO;
 import com.example.NestedObjectFilterMongoDB.dto.UniversityDTO;
 import com.example.NestedObjectFilterMongoDB.model.University;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.aggregation.UnwindOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -68,18 +73,29 @@ public class UniversityRepositoryImpl implements UniversityRepositoryInterface{
     }
 
     @Override
-    public FacultyDTO findFacultyByName(String universityId, String facultyName) {
-        FacultyDTO dto = new FacultyDTO();
-        Query query = new Query();
+    public List<FacultyDTO> findFacultyByName(String universityId, String facultyName) {
+        List<FacultyDTO> dto = new ArrayList<>();
+        /*Query query = new Query();
         query.addCriteria(Criteria.where("_id").is(universityId).and("faculty.facultyName").regex(facultyName));
         List<University> universities =
                 mongoTemplate.find(query, University.class, "university");
         for (University university : universities){
             UniversityDTO universityDTO  = new UniversityDTO();
             BeanUtils.copyProperties(university, universityDTO);
-            dto = university.getFaculty().get(0);
+            dto = university.getFaculty();
 
-        }
+        }*/
+        UnwindOperation unwindOperation = Aggregation.unwind("faculty");
+        MatchOperation matchOperation = Aggregation.match(Criteria.where("_id")
+                .is(universityId).and("faculty.facultyName").regex(facultyName));
+        Aggregation aggregation = Aggregation.newAggregation(unwindOperation, matchOperation);
+        AggregationResults<FacultyUnwindDTO> results = mongoTemplate.aggregate(aggregation, "university",
+                FacultyUnwindDTO.class);
+
+       for (FacultyUnwindDTO unwindDTO : results.getMappedResults()){
+           dto.add(unwindDTO.getFaculty());
+
+       }
         return dto;
     }
 

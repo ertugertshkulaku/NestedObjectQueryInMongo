@@ -32,7 +32,7 @@ public class UniversityController {
     }
 
     @GetMapping("/findFacultyByName")
-    public FacultyDTO findFacultyByName(@RequestParam("id")  String universityId,@RequestParam("name")  String facultyName){
+    public List<FacultyDTO> findFacultyByName(@RequestParam("id")  String universityId,@RequestParam("name")  String facultyName){
         return universityServiceInterface.findFacultyByName(universityId, facultyName);
     }
 

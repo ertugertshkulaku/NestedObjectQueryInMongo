@@ -14,7 +14,7 @@ public interface UniversityRepositoryInterface {
 
     FacultyDTO saveFaculty(String universityId, FacultyDTO facultyDTO);
 
-    FacultyDTO findFacultyByName(String universityId, String facultyName);
+    List<FacultyDTO> findFacultyByName(String universityId, String facultyName);
 
     DepartmentDTO saveDepartment(String universityId, String facultyId, DepartmentDTO departmentDTO);
 

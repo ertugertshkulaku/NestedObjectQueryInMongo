@@ -31,7 +31,7 @@ public class UniversityServiceImpl implements UniversityServiceInterface{
     }
 
     @Override
-    public FacultyDTO findFacultyByName(String universityId, String facultyName) {
+    public List<FacultyDTO> findFacultyByName(String universityId, String facultyName) {
         return universityRepositoryInterface.findFacultyByName(universityId, facultyName);
     }
 
